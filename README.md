@@ -1,30 +1,48 @@
-# HEHE Web
+# .
 
-레이저 제모 병원 찾기 앱 **HEHE** 다운로드 유도용 지도 웹 랜딩 페이지
+This template should help get you started developing with Vue 3 in Vite.
 
-## 기술 스택
+## Recommended IDE Setup
 
-- Vue 3 + Vite + TypeScript
-- Pinia, Vue Router 4
-- 네이버 지도 API (Maps JavaScript API v3)
-- axios
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## 개발 서버 실행
+## Recommended Browser Setup
 
-```bash
+- Chromium-based browsers (Chrome, Edge, Brave, etc.):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
 npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
 npm run dev
 ```
 
-## 빌드
+### Type-Check, Compile and Minify for Production
 
-```bash
+```sh
 npm run build
 ```
 
-## 환경변수
+### Lint with [ESLint](https://eslint.org/)
 
-```
-VITE_NAVER_MAP_CLIENT_ID=...
-VITE_API_BASE_URL=https://api.hehehe.kr
+```sh
+npm run lint
 ```
