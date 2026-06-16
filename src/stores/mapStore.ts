@@ -10,6 +10,7 @@ export const useMapStore = defineStore('map', () => {
   const selectedCluster = ref<ClusterItem | null>(null)
   const hospitals = ref<HospitalListItem[]>([])
   const isPanelOpen = ref(false)
+  const selectedEquipId = ref(1)
 
-  return { userLat, userLng, clusters, precision, selectedCluster, hospitals, isPanelOpen }
+  return { userLat, userLng, clusters, precision, selectedCluster, hospitals, isPanelOpen, selectedEquipId }
 })
