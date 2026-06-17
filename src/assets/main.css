@@ -29,10 +29,79 @@ body,
   font-weight: bold;
   box-shadow: 0 2px 8px rgba(64, 97, 250, 0.4);
   cursor: pointer;
+  opacity: 0.82;
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease;
 }
 
 .cluster-marker:hover {
   transform: translate(-50%, -50%) scale(1.1);
+}
+
+.hospital-marker-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #4061fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(64, 97, 250, 0.35);
+  transition: transform 0.1s ease;
+}
+
+.hospital-marker-dot:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.hospital-marker-dot-ring {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+}
+
+.hospital-callout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border-radius: 22px;
+  padding: 6px 14px 6px 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+.hospital-callout-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #4061fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hospital-callout-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.hospital-pin-stem {
+  width: 2px;
+  height: 16px;
+  background: #4061fa;
+}
+
+.hospital-pin-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4061fa;
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
