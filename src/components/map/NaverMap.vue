@@ -5,22 +5,20 @@ import { debounce } from '@/utils/debounce'
 import { hospitalService } from '@/services/hospitalService'
 import { mergeClusterItems, markerSize } from '@/composables/useClusterMerge'
 import type { MergedCluster } from '@/composables/useClusterMerge'
+import { geocodeAddress } from '@/utils/geocode'
+import type { HospitalListItem } from '@/types/hospital'
 
 const store = useMapStore()
 const mapRef = ref<naver.maps.Map | null>(null)
 let markers: naver.maps.Marker[] = []
 
-interface SelectedHospital {
-  sourceKey: string
-  name: string
-}
-let selectedHospital: SelectedHospital | null = null
-let selectedMarkerRef: naver.maps.Marker | null = null
+interface ActivePin { sourceKey: string; name: string }
+let activePin: ActivePin | null = null
+let activePinRef: naver.maps.Marker | null = null
 
-// 단일 마커 이름+좌표 캐시. key: `${gridLat},${gridLng},${precision}` / equipId 변경 시 초기화
-const singleCache = new Map<string, { lat: number; lng: number; name: string } | null>()
-// geocoding 결과 캐시. key: address 문자열 / address는 equipId와 무관하므로 영구 보존
-const geocodeCache = new Map<string, { lat: number; lng: number } | null>()
+// count=1 마커 전체 데이터 캐시. key: `${gridLat},${gridLng},${precision}` / equipId 변경 시 초기화
+type CachedSingle = (HospitalListItem & { lat: number; lng: number }) | null
+const singleCache = new Map<string, CachedSingle>()
 
 let renderVersion = 0
 
@@ -42,7 +40,10 @@ function initMap() {
   })
 
   naver.maps.Event.addListener(mapRef.value, 'idle', debounce(loadClusters, 500))
-  naver.maps.Event.addListener(mapRef.value, 'click', clearSelectedHospital)
+  naver.maps.Event.addListener(mapRef.value, 'click', clearActivePin)
+  naver.maps.Event.addListener(mapRef.value, 'zoom_changed', () => {
+    console.log('[zoom]', mapRef.value?.getZoom())
+  })
 }
 
 watch(() => store.selectedEquipId, () => {
@@ -128,38 +129,15 @@ function makeHospitalPinIcon(name: string): { content: string; anchor: naver.map
   }
 }
 
-function clearSelectedHospital() {
-  if (selectedMarkerRef) {
-    selectedMarkerRef.setIcon(makeHospitalDotIcon())
+function clearActivePin() {
+  if (activePinRef) {
+    activePinRef.setIcon(makeHospitalDotIcon())
   }
-  selectedHospital = null
-  selectedMarkerRef = null
+  activePin = null
+  activePinRef = null
 }
 
-function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
-  if (geocodeCache.has(address)) return Promise.resolve(geocodeCache.get(address)!)
-
-  return new Promise((resolve) => {
-    naver.maps.Service.geocode({ query: address }, (status, response) => {
-      if (status !== naver.maps.Service.Status.OK) {
-        geocodeCache.set(address, null)
-        resolve(null)
-        return
-      }
-      const addr = response.v2?.addresses?.[0]
-      if (!addr) {
-        geocodeCache.set(address, null)
-        resolve(null)
-        return
-      }
-      const coords = { lat: parseFloat(addr.y), lng: parseFloat(addr.x) }
-      geocodeCache.set(address, coords)
-      resolve(coords)
-    })
-  })
-}
-
-// count=1 마커 위치 사전 조회 — address geocoding으로 실제 병원 좌표 보정 (줌 레벨 무관)
+// count=1 마커 전체 데이터 사전 조회 — address geocoding으로 실제 병원 좌표 보정 (줌 레벨 무관)
 async function prefetchSinglePositions(merged: MergedCluster[]): Promise<void> {
   await Promise.all(
     merged
@@ -181,9 +159,8 @@ async function prefetchSinglePositions(merged: MergedCluster[]): Promise<void> {
             singleCache.set(key, null)
             return
           }
-          // address 기반 geocoding으로 실제 좌표 획득
           const coords = await geocodeAddress(h.address)
-          singleCache.set(key, coords ? { ...coords, name: h.name } : null)
+          singleCache.set(key, coords ? { ...h, lat: coords.lat, lng: coords.lng } : null)
         } catch {
           singleCache.set(key, null)
         }
@@ -209,9 +186,8 @@ async function renderClusterMarkers() {
 
   merged.forEach((cluster) => {
     const isCountOne = cluster.count === 1
-    const isSingle = isCountOne && zoom >= SINGLE_MARKER_MIN_ZOOM  // 시각 스타일 기준
+    const isSingle = isCountOne && zoom >= SINGLE_MARKER_MIN_ZOOM
     const s = cluster.sources[0]
-    // count=1이면 줌 레벨과 무관하게 실제 병원 좌표 사용
     const sourceKey = isCountOne ? `${s.lat},${s.lng},${store.precision}` : ''
     const cached = isCountOne ? (singleCache.get(sourceKey) ?? null) : null
 
@@ -229,21 +205,37 @@ async function renderClusterMarkers() {
     }
 
     naver.maps.Event.addListener(marker, 'click', () => {
+      const clickZoom = mapRef.value?.getZoom() ?? 13
       if (isSingle) {
-        if (selectedHospital?.sourceKey === sourceKey) return
-        if (selectedMarkerRef) selectedMarkerRef.setIcon(makeHospitalDotIcon())
+        if (activePin?.sourceKey === sourceKey) {
+          // callout 클릭 → bottom sheet 오픈
+          if (cached) {
+            store.selectedHospital = cached
+            store.isBottomSheetOpen = true
+          }
+          return
+        }
+        if (activePinRef) activePinRef.setIcon(makeHospitalDotIcon())
 
+        console.log('[click] single marker | zoom:', clickZoom)
         const name = cached?.name ?? '병원'
         marker.setIcon(makeHospitalPinIcon(name))
-        selectedHospital = { sourceKey, name }
-        selectedMarkerRef = marker
+        activePin = { sourceKey, name }
+        activePinRef = marker
       } else if (cluster.sources.length === 1) {
-        store.selectedCluster = cluster.sources[0]
+        console.log('[click] open panel (single source) | zoom:', clickZoom, '| count:', cluster.count)
+        store.selectedClusters = cluster.sources
         store.isPanelOpen = true
       } else {
-        const currentZoom = mapRef.value?.getZoom() ?? 13
-        mapRef.value?.setCenter(new naver.maps.LatLng(cluster.lat, cluster.lng))
-        mapRef.value?.setZoom(Math.min(currentZoom + 1, 16))
+        if (toBackendZoom(clickZoom) !== toBackendZoom(clickZoom + 1)) {
+          console.log('[click] zoom in | zoom:', clickZoom, '→', clickZoom + 1, '| backend:', toBackendZoom(clickZoom), '→', toBackendZoom(clickZoom + 1), '| sources:', cluster.sources.length)
+          mapRef.value?.setCenter(new naver.maps.LatLng(cluster.lat, cluster.lng))
+          mapRef.value?.setZoom(clickZoom + 1)
+        } else {
+          console.log('[click] open panel (precision unchanged at next zoom) | zoom:', clickZoom, '| backend:', toBackendZoom(clickZoom), '| sources:', cluster.sources.length)
+          store.selectedClusters = cluster.sources
+          store.isPanelOpen = true
+        }
       }
     })
 
@@ -251,14 +243,14 @@ async function renderClusterMarkers() {
   })
 
   // 렌더 후 선택 상태 복원
-  if (selectedHospital) {
-    const restored = singleMarkerMap.get(selectedHospital.sourceKey)
+  if (activePin) {
+    const restored = singleMarkerMap.get(activePin.sourceKey)
     if (restored) {
-      restored.setIcon(makeHospitalPinIcon(selectedHospital.name))
-      selectedMarkerRef = restored
+      restored.setIcon(makeHospitalPinIcon(activePin.name))
+      activePinRef = restored
     } else {
-      selectedHospital = null
-      selectedMarkerRef = null
+      activePin = null
+      activePinRef = null
     }
   }
 }

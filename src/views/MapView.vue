@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import NaverMap from '@/components/map/NaverMap.vue'
 import ZoomControl from '@/components/map/ZoomControl.vue'
 import EquipFilterBar from '@/components/filter/EquipFilterBar.vue'
+import HospitalPanel from '@/components/panel/HospitalPanel.vue'
+import HospitalBottomSheet from '@/components/panel/HospitalBottomSheet.vue'
 
 const naverMapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 </script>
@@ -12,6 +14,8 @@ const naverMapRef = ref<InstanceType<typeof NaverMap> | null>(null)
     <NaverMap ref="naverMapRef" />
     <EquipFilterBar />
     <ZoomControl :map="naverMapRef?.mapRef ?? null" />
+    <HospitalPanel />
+    <HospitalBottomSheet />
   </div>
 </template>
 

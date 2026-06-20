@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useMapStore } from '@/stores/mapStore'
 
 const props = defineProps<{
@@ -6,6 +8,9 @@ const props = defineProps<{
 }>()
 
 const store = useMapStore()
+const { isPanelOpen } = storeToRefs(store)
+
+const controlRight = computed(() => isPanelOpen.value ? '376px' : '16px')
 
 function zoomIn() {
   if (!props.map) return
@@ -24,7 +29,7 @@ function goToMyLocation() {
 </script>
 
 <template>
-  <div class="zoom-control">
+  <div class="zoom-control" :style="{ right: controlRight }">
     <button class="zoom-btn" @click="zoomIn">+</button>
     <button class="zoom-btn" @click="zoomOut">−</button>
     <button class="zoom-btn location-btn" @click="goToMyLocation">
@@ -55,6 +60,7 @@ function goToMyLocation() {
   flex-direction: column;
   gap: 2px;
   z-index: 100;
+  transition: right 0.3s ease;
 }
 
 .zoom-btn {
