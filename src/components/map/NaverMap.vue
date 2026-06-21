@@ -15,6 +15,9 @@ let markers: naver.maps.Marker[] = []
 interface ActivePin { sourceKey: string; name: string }
 let activePin: ActivePin | null = null
 let activePinRef: naver.maps.Marker | null = null
+let selectedHospitalMarker: naver.maps.Marker | null = null
+// 단일 마커 callout 클릭으로 열린 경우 true — 이미 callout이 있으므로 빨간 핀 중복 표시 방지
+let bottomSheetFromSingleMarker = false
 
 // count=1 마커 전체 데이터 캐시. key: `${gridLat},${gridLng},${precision}` / equipId 변경 시 초기화
 type CachedSingle = (HospitalListItem & { lat: number; lng: number }) | null
@@ -50,6 +53,40 @@ watch(() => store.selectedEquipId, () => {
   singleCache.clear()
   loadClusters()
 })
+
+watch(
+  () => store.isBottomSheetOpen,
+  (isOpen) => {
+    // 기존 선택 마커 제거 (열림/닫힘 모두)
+    if (selectedHospitalMarker) {
+      selectedHospitalMarker.setMap(null)
+      selectedHospitalMarker = null
+    }
+    if (!isOpen) return
+
+    // 단일 마커 callout 경유: 이미 callout이 지도에 있으므로 빨간 핀 추가하지 않음
+    if (bottomSheetFromSingleMarker) {
+      bottomSheetFromSingleMarker = false
+      return
+    }
+
+    if (!store.selectedHospital) return
+    const { lat, lng, name } = store.selectedHospital
+    if (lat == null || lng == null || !mapRef.value) return
+
+    // 패널 목록 경유: 빨간 핀 추가 + 지도 이동
+    selectedHospitalMarker = new naver.maps.Marker({
+      position: new naver.maps.LatLng(lat, lng),
+      map: mapRef.value,
+      icon: makeSelectedHospitalIcon(name),
+    })
+
+    mapRef.value.setCenter(new naver.maps.LatLng(lat, lng))
+    if (mapRef.value.getZoom() < 15) {
+      mapRef.value.setZoom(15)
+    }
+  },
+)
 
 function requestUserLocation() {
   if (!navigator.geolocation) return
@@ -125,6 +162,13 @@ function makeHospitalPinIcon(name: string): { content: string; anchor: naver.map
   const cross = `<svg viewBox="0 0 24 24" width="14" height="14" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M9 3v6H3v6h6v6h6v-6h6V9h-6V3z"/></svg>`
   return {
     content: `<div style="display:inline-flex;flex-direction:column;align-items:center;transform:translate(-50%,calc(-100% + 10px))"><div class="hospital-callout"><div class="hospital-callout-badge">${cross}</div><span class="hospital-callout-name">${escapeHtml(name)}</span></div><div class="hospital-pin-stem"></div><div class="hospital-pin-dot"></div></div>`,
+    anchor: new naver.maps.Point(0, 0),
+  }
+}
+
+function makeSelectedHospitalIcon(name: string): { content: string; anchor: naver.maps.Point } {
+  return {
+    content: `<div style="display:inline-flex;flex-direction:column;align-items:center;transform:translate(-50%,calc(-100% + 10px))"><div style="background:#ff6348;color:white;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(255,99,72,0.4);max-width:180px;overflow:hidden;text-overflow:ellipsis">${escapeHtml(name)}</div><div style="width:2px;height:6px;background:#ff6348"></div><div style="width:8px;height:8px;background:#ff6348;border-radius:50%;border:2px solid white;margin-top:-2px"></div></div>`,
     anchor: new naver.maps.Point(0, 0),
   }
 }
@@ -208,8 +252,9 @@ async function renderClusterMarkers() {
       const clickZoom = mapRef.value?.getZoom() ?? 13
       if (isSingle) {
         if (activePin?.sourceKey === sourceKey) {
-          // callout 클릭 → bottom sheet 오픈
+          // callout 클릭 → bottom sheet 오픈 (단일 마커 경로: 빨간 핀 중복 방지용 플래그 선설정)
           if (cached) {
+            bottomSheetFromSingleMarker = true
             store.selectedHospital = cached
             store.isBottomSheetOpen = true
           }

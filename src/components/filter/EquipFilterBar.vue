@@ -34,13 +34,8 @@ function selectEquip(id: number) {
 
 <style scoped>
 .equip-filter-bar {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   gap: 8px;
-  z-index: 150;
 }
 
 .equip-btn {

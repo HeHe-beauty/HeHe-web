@@ -39,8 +39,10 @@ function openBottomSheet(h: HospitalListItem) {
 <template>
   <transition name="slide">
     <div v-if="isPanelOpen" class="hospital-panel">
-      <button class="close-btn" @click="store.isPanelOpen = false">✕</button>
-      <p class="panel-header">병원 {{ hospitals.length }}곳</p>
+      <div class="panel-header-row">
+        <p class="panel-header">병원 {{ hospitals.length }}곳</p>
+        <button class="close-btn" @click="store.isPanelOpen = false">✕</button>
+      </div>
 
       <div v-if="isLoading" class="loading">불러오는 중...</div>
 
@@ -70,23 +72,36 @@ function openBottomSheet(h: HospitalListItem) {
   z-index: 100;
 }
 
-.close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #666;
-  line-height: 1;
+.panel-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
 .panel-header {
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 16px;
-  padding-right: 32px;
+}
+
+.close-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  color: #555;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.close-btn:hover {
+  background: #ebebeb;
 }
 
 .loading {
