@@ -17,12 +17,11 @@ interface Station {
 const naverMapRef = ref<InstanceType<typeof NaverMap> | null>(null)
 
 function onStationSelect(station: Station) {
-  // Vue가 exposed ref를 자동 언래핑 — .value 없이 map 인스턴스 직접 접근
   const map = naverMapRef.value?.mapRef
   if (!map) return
   map.setCenter(new naver.maps.LatLng(station.lat, station.lng))
-  // zoom 15 = 개별 병원 마커가 나타나기 시작하는 수준 (SINGLE_MARKER_MIN_ZOOM)
   map.setZoom(15)
+  naverMapRef.value?.showStationMarker(station.lat, station.lng)
 }
 </script>
 

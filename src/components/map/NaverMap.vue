@@ -24,8 +24,34 @@ type CachedSingle = (HospitalListItem & { lat: number; lng: number }) | null
 const singleCache = new Map<string, CachedSingle>()
 
 let renderVersion = 0
+let stationMarkerTimer: ReturnType<typeof setTimeout> | null = null
 
-defineExpose({ mapRef })
+function showStationMarker(lat: number, lng: number) {
+  if (!mapRef.value) return
+
+  // 이전 역 마커 즉시 제거
+  if (stationMarkerTimer) {
+    clearTimeout(stationMarkerTimer)
+    stationMarkerTimer = null
+  }
+
+  const marker = new naver.maps.Marker({
+    position: new naver.maps.LatLng(lat, lng),
+    map: mapRef.value,
+    icon: {
+      content: `<div style="width:28px;height:28px;background:#ff6f00;border-radius:50%;border:4px solid white;box-shadow:0 3px 12px rgba(255,111,0,0.5);transform:translate(-50%,-50%)"></div>`,
+      anchor: new naver.maps.Point(0, 0),
+    },
+  })
+
+  // 2.5초 후 제거
+  stationMarkerTimer = setTimeout(() => {
+    marker.setMap(null)
+    stationMarkerTimer = null
+  }, 2000)
+}
+
+defineExpose({ mapRef, showStationMarker })
 
 onMounted(() => {
   initMap()
@@ -62,7 +88,11 @@ watch(
       selectedHospitalMarker.setMap(null)
       selectedHospitalMarker = null
     }
-    if (!isOpen) return
+    if (!isOpen) {
+      // 시트 닫힐 때: 건너뛴 dot 마커 복원을 위해 재렌더
+      renderClusterMarkers()
+      return
+    }
 
     // 단일 마커 callout 경유: 이미 callout이 지도에 있으므로 빨간 핀 추가하지 않음
     if (bottomSheetFromSingleMarker) {
@@ -234,6 +264,11 @@ async function renderClusterMarkers() {
     const s = cluster.sources[0]
     const sourceKey = isCountOne ? `${s.lat},${s.lng},${store.precision}` : ''
     const cached = isCountOne ? (singleCache.get(sourceKey) ?? null) : null
+
+    // 패널에서 선택된 병원: 빨간 핀이 이미 표시 중이므로 dot 마커 생성 건너뜀
+    if (isSingle && store.isBottomSheetOpen && cached?.hospitalId != null && cached.hospitalId === store.selectedHospital?.hospitalId) {
+      return
+    }
 
     const marker = new naver.maps.Marker({
       position: new naver.maps.LatLng(
