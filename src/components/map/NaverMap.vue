@@ -70,9 +70,6 @@ function initMap() {
 
   naver.maps.Event.addListener(mapRef.value, 'idle', debounce(loadClusters, 500))
   naver.maps.Event.addListener(mapRef.value, 'click', clearActivePin)
-  naver.maps.Event.addListener(mapRef.value, 'zoom_changed', () => {
-    console.log('[zoom]', mapRef.value?.getZoom())
-  })
 }
 
 watch(() => store.selectedEquipId, () => {
@@ -218,6 +215,7 @@ async function prefetchSinglePositions(merged: MergedCluster[]): Promise<void> {
       .filter((c) => c.count === 1)
       .map(async (cluster) => {
         const s = cluster.sources[0]
+        if (!s) return
         const key = `${s.lat},${s.lng},${store.precision}`
         if (singleCache.has(key)) return
 
@@ -262,7 +260,8 @@ async function renderClusterMarkers() {
     const isCountOne = cluster.count === 1
     const isSingle = isCountOne && zoom >= SINGLE_MARKER_MIN_ZOOM
     const s = cluster.sources[0]
-    const sourceKey = isCountOne ? `${s.lat},${s.lng},${store.precision}` : ''
+    if (isCountOne && !s) return
+    const sourceKey = isCountOne ? `${s!.lat},${s!.lng},${store.precision}` : ''
     const cached = isCountOne ? (singleCache.get(sourceKey) ?? null) : null
 
     // 패널에서 선택된 병원: 빨간 핀이 이미 표시 중이므로 dot 마커 생성 건너뜀
@@ -297,22 +296,18 @@ async function renderClusterMarkers() {
         }
         if (activePinRef) activePinRef.setIcon(makeHospitalDotIcon())
 
-        console.log('[click] single marker | zoom:', clickZoom)
         const name = cached?.name ?? '병원'
         marker.setIcon(makeHospitalPinIcon(name))
         activePin = { sourceKey, name }
         activePinRef = marker
       } else if (cluster.sources.length === 1) {
-        console.log('[click] open panel (single source) | zoom:', clickZoom, '| count:', cluster.count)
         store.selectedClusters = cluster.sources
         store.isPanelOpen = true
       } else {
         if (toBackendZoom(clickZoom) !== toBackendZoom(clickZoom + 1)) {
-          console.log('[click] zoom in | zoom:', clickZoom, '→', clickZoom + 1, '| backend:', toBackendZoom(clickZoom), '→', toBackendZoom(clickZoom + 1), '| sources:', cluster.sources.length)
           mapRef.value?.setCenter(new naver.maps.LatLng(cluster.lat, cluster.lng))
           mapRef.value?.setZoom(clickZoom + 1)
         } else {
-          console.log('[click] open panel (precision unchanged at next zoom) | zoom:', clickZoom, '| backend:', toBackendZoom(clickZoom), '| sources:', cluster.sources.length)
           store.selectedClusters = cluster.sources
           store.isPanelOpen = true
         }

@@ -81,9 +81,11 @@ export function mergeClusterItems(items: ClusterItem[], zoom: number): MergedClu
       let mergedJ = -1
       for (let j = i + 1; j < nodes.length; j++) {
         if (used.has(j)) continue
-        const threshold = (markerSize(nodes[i].count) + markerSize(nodes[j].count)) / 2 + 12
-        const ptA = worldPixel(nodes[i].lat, nodes[i].lng, zoom)
-        const ptB = worldPixel(nodes[j].lat, nodes[j].lng, zoom)
+        const nodeI = nodes[i]!
+        const nodeJ = nodes[j]!
+        const threshold = (markerSize(nodeI.count) + markerSize(nodeJ.count)) / 2 + 12
+        const ptA = worldPixel(nodeI.lat, nodeI.lng, zoom)
+        const ptB = worldPixel(nodeJ.lat, nodeJ.lng, zoom)
         if (pixelDist(ptA, ptB) < threshold) {
           mergedJ = j
           break
@@ -91,19 +93,21 @@ export function mergeClusterItems(items: ClusterItem[], zoom: number): MergedClu
       }
 
       if (mergedJ >= 0) {
-        const combined = [...nodes[i].sources, ...nodes[mergedJ].sources]
+        const nodeI = nodes[i]!
+        const nodeM = nodes[mergedJ]!
+        const combined = [...nodeI.sources, ...nodeM.sources]
         const wc = weightedCenter(combined)
         next.push({
           lat: wc.lat,
           lng: wc.lng,
-          count: nodes[i].count + nodes[mergedJ].count,
+          count: nodeI.count + nodeM.count,
           sources: combined,
         })
         used.add(i)
         used.add(mergedJ)
         changed = true
       } else {
-        next.push(nodes[i])
+        next.push(nodes[i]!)
         used.add(i)
       }
     }
