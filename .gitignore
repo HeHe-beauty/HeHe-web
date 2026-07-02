@@ -43,4 +43,6 @@ __screenshots__/
 
 # Project planning docs (local only)
 CLAUDE.md
+AGENTS.md
 docs/
+.claude/
