@@ -134,4 +134,49 @@ const distance = computed(() => {
   user-select: none;
   pointer-events: none;
 }
+
+@media (max-width: 768px) {
+  .hospital-card {
+    padding: 12px;
+    margin-bottom: 0;
+    min-width: 0;
+  }
+
+  .card-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+
+  .card-info {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .card-meta {
+    order: -1;
+    gap: 4px;
+  }
+
+  .chevron {
+    display: none;
+  }
+
+  .hospital-name {
+    font-size: 14px;
+    white-space: normal;
+    word-break: keep-all;
+  }
+
+  .hospital-address {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bookmark {
+    font-size: 11px;
+  }
+}
 </style>

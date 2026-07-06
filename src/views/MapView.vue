@@ -6,6 +6,10 @@ import EquipFilterBar from '@/components/filter/EquipFilterBar.vue'
 import HospitalPanel from '@/components/panel/HospitalPanel.vue'
 import HospitalBottomSheet from '@/components/panel/HospitalBottomSheet.vue'
 import SearchBar from '@/components/search/SearchBar.vue'
+import FaqModal from '@/components/modal/FaqModal.vue'
+import LeftControls from '@/components/map/LeftControls.vue'
+
+const isFaqOpen = ref(false)
 
 interface Station {
   name: string
@@ -33,8 +37,10 @@ function onStationSelect(station: Station) {
       <EquipFilterBar />
     </div>
     <ZoomControl :map="naverMapRef?.mapRef ?? null" />
+    <LeftControls @open-faq="isFaqOpen = true" />
     <HospitalPanel />
     <HospitalBottomSheet />
+    <FaqModal v-if="isFaqOpen" @close="isFaqOpen = false" />
   </div>
 </template>
 

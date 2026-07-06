@@ -227,4 +227,35 @@ function close() {
   transform: translateX(-50%) translateY(20px);
   opacity: 0;
 }
+
+@media (max-width: 768px) {
+  .bottom-sheet {
+    padding: 12px 14px 14px;
+  }
+
+  .sheet-name {
+    font-size: 16px;
+  }
+
+  .sheet-address {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .tags {
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .sheet-stats {
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .btn-bookmark,
+  .btn-contact {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
 </style>

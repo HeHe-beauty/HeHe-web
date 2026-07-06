@@ -25,6 +25,7 @@ const singleCache = new Map<string, CachedSingle>()
 
 let renderVersion = 0
 let stationMarkerTimer: ReturnType<typeof setTimeout> | null = null
+let userMarker: naver.maps.Marker | null = null
 
 function showStationMarker(lat: number, lng: number) {
   if (!mapRef.value) return
@@ -78,40 +79,31 @@ watch(() => store.selectedEquipId, () => {
 })
 
 watch(
-  () => store.isBottomSheetOpen,
-  (isOpen) => {
-    // 기존 선택 마커 제거 (열림/닫힘 모두)
+  () => [store.isBottomSheetOpen, store.selectedHospital] as const,
+  ([isOpen, hospital]) => {
     if (selectedHospitalMarker) {
       selectedHospitalMarker.setMap(null)
       selectedHospitalMarker = null
     }
     if (!isOpen) {
-      // 시트 닫힐 때: 건너뛴 dot 마커 복원을 위해 재렌더
       renderClusterMarkers()
       return
     }
-
-    // 단일 마커 callout 경유: 이미 callout이 지도에 있으므로 빨간 핀 추가하지 않음
     if (bottomSheetFromSingleMarker) {
       bottomSheetFromSingleMarker = false
       return
     }
-
-    if (!store.selectedHospital) return
-    const { lat, lng, name } = store.selectedHospital
+    if (!hospital) return
+    const { lat, lng, name } = hospital
     if (lat == null || lng == null || !mapRef.value) return
 
-    // 패널 목록 경유: 빨간 핀 추가 + 지도 이동
     selectedHospitalMarker = new naver.maps.Marker({
       position: new naver.maps.LatLng(lat, lng),
       map: mapRef.value,
       icon: makeSelectedHospitalIcon(name),
     })
-
     mapRef.value.setCenter(new naver.maps.LatLng(lat, lng))
-    if (mapRef.value.getZoom() < 15) {
-      mapRef.value.setZoom(15)
-    }
+    if (mapRef.value.getZoom() < 17) mapRef.value.setZoom(17)
   },
 )
 
@@ -123,9 +115,25 @@ function requestUserLocation() {
       store.userLat = pos.coords.latitude
       store.userLng = pos.coords.longitude
       mapRef.value?.setCenter(new naver.maps.LatLng(store.userLat!, store.userLng!))
+      showUserMarker(store.userLat!, store.userLng!)
     },
-    () => {},
+    () => {
+      store.locationDenied = true
+    },
   )
+}
+
+function showUserMarker(lat: number, lng: number) {
+  if (!mapRef.value) return
+  userMarker?.setMap(null)
+  userMarker = new naver.maps.Marker({
+    position: new naver.maps.LatLng(lat, lng),
+    map: mapRef.value,
+    icon: {
+      content: `<div style="width:18px;height:18px;background:#4061fa;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(64,97,250,0.5);transform:translate(-50%,-50%)"></div>`,
+      anchor: new naver.maps.Point(0, 0),
+    },
+  })
 }
 
 function toBackendZoom(naverZoom: number): number {
@@ -203,9 +211,16 @@ function makeSelectedHospitalIcon(name: string): { content: string; anchor: nave
 function clearActivePin() {
   if (activePinRef) {
     activePinRef.setIcon(makeHospitalDotIcon())
+    activePinRef.setZIndex(0)
   }
   activePin = null
   activePinRef = null
+
+  if (store.isBottomSheetOpen) {
+    store.isBottomSheetOpen = false
+  } else if (store.isPanelOpen) {
+    store.isPanelOpen = false
+  }
 }
 
 // count=1 마커 전체 데이터 사전 조회 — address geocoding으로 실제 병원 좌표 보정 (줌 레벨 무관)
@@ -294,10 +309,14 @@ async function renderClusterMarkers() {
           }
           return
         }
-        if (activePinRef) activePinRef.setIcon(makeHospitalDotIcon())
+        if (activePinRef) {
+          activePinRef.setIcon(makeHospitalDotIcon())
+          activePinRef.setZIndex(0)
+        }
 
         const name = cached?.name ?? '병원'
         marker.setIcon(makeHospitalPinIcon(name))
+        marker.setZIndex(10)
         activePin = { sourceKey, name }
         activePinRef = marker
       } else if (cluster.sources.length === 1) {
@@ -322,6 +341,7 @@ async function renderClusterMarkers() {
     const restored = singleMarkerMap.get(activePin.sourceKey)
     if (restored) {
       restored.setIcon(makeHospitalPinIcon(activePin.name))
+      restored.setZIndex(10)
       activePinRef = restored
     } else {
       activePin = null

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMapStore } from '@/stores/mapStore'
 
@@ -8,9 +8,28 @@ const props = defineProps<{
 }>()
 
 const store = useMapStore()
-const { isPanelOpen } = storeToRefs(store)
+const { isPanelOpen, isPanelCollapsed } = storeToRefs(store)
 
-const controlRight = computed(() => isPanelOpen.value ? '376px' : '16px')
+const windowWidth = ref(window.innerWidth)
+
+function onResize() {
+  windowWidth.value = window.innerWidth
+}
+
+onMounted(() => window.addEventListener('resize', onResize))
+onUnmounted(() => window.removeEventListener('resize', onResize))
+
+const controlRight = computed(() => {
+  if (windowWidth.value <= 768) return '16px'
+  return isPanelOpen.value ? '376px' : '16px'
+})
+
+const controlBottom = computed(() => {
+  if (windowWidth.value <= 768) {
+    return isPanelOpen.value && !isPanelCollapsed.value ? 'calc(35vh + 12px)' : '16px'
+  }
+  return '80px'
+})
 
 function zoomIn() {
   if (!props.map) return
@@ -23,13 +42,17 @@ function zoomOut() {
 }
 
 function goToMyLocation() {
-  if (!props.map || store.userLat == null || store.userLng == null) return
+  if (!props.map) return
+  if (store.userLat == null || store.userLng == null) {
+    alert('위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.')
+    return
+  }
   props.map.setCenter(new naver.maps.LatLng(store.userLat, store.userLng))
 }
 </script>
 
 <template>
-  <div class="zoom-control" :style="{ right: controlRight }">
+  <div class="zoom-control" :style="{ right: controlRight, bottom: controlBottom }">
     <button class="zoom-btn" @click="zoomIn">+</button>
     <button class="zoom-btn" @click="zoomOut">−</button>
     <button class="zoom-btn location-btn" @click="goToMyLocation">
@@ -59,8 +82,8 @@ function goToMyLocation() {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  z-index: 100;
-  transition: right 0.3s ease;
+  z-index: 110;
+  transition: right 0.3s ease, bottom 0.3s ease;
 }
 
 .zoom-btn {
@@ -87,5 +110,15 @@ function goToMyLocation() {
 .location-btn {
   margin-top: 6px;
   color: #4061fa;
+}
+
+@media (max-width: 768px) {
+  .zoom-btn:not(.location-btn) {
+    display: none;
+  }
+
+  .location-btn {
+    margin-top: 0;
+  }
 }
 </style>

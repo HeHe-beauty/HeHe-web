@@ -12,6 +12,7 @@ declare namespace naver {
       constructor(options: MarkerOptions)
       setMap(map: Map | null): void
       setIcon(icon: { content: string; anchor: Point }): void
+      setZIndex(zIndex: number): void
     }
     class LatLng {
       constructor(lat: number, lng: number)
