@@ -2,15 +2,54 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="alternate icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/web-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4061fa">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="92sBda4spaj9spkBFLGH7lKXOjN16ZJ0jAkQzp2nAIs">
+    <link rel="canonical" href="https://www.hehehe.kr">
+
     <title>레이저 제모 병원 찾기 | HEHE</title>
     <meta name="description" content="내 주변 레이저 제모 병원을 지도에서 찾아보세요. HEHE 앱으로 예약까지 한번에.">
+
+    <!-- OG -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.hehehe.kr">
     <meta property="og:title" content="레이저 제모 병원 찾기 | HEHE">
     <meta property="og:description" content="내 주변 레이저 제모 병원을 지도에서 찾아보세요. HEHE 앱으로 예약까지 한번에.">
+    <meta property="og:image" content="https://www.hehehe.kr/og-image.png">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:site_name" content="HEHE">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="레이저 제모 병원 찾기 | HEHE">
+    <meta name="twitter:description" content="내 주변 레이저 제모 병원을 지도에서 찾아보세요. HEHE 앱으로 예약까지 한번에.">
+    <meta name="twitter:image" content="https://www.hehehe.kr/og-image.png">
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "HEHE - 레이저 제모 병원 찾기",
+      "url": "https://www.hehehe.kr",
+      "description": "내 주변 레이저 제모 병원을 지도에서 찾아보세요. HEHE 앱으로 예약까지 한번에.",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "ko",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "KRW"
+      }
+    }
+    </script>
+
     <script
       type="text/javascript"
       src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=<%= VITE_NAVER_MAP_CLIENT_ID %>&submodules=geocoder"
