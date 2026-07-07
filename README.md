@@ -55,6 +55,15 @@ Nginx가 `dist/` 폴더를 정적 파일로 서빙한다. 배포 후 Nginx reloa
 
 ---
 
+## 적용 사항
+
+- **SEO** — 메타 태그, OG/Twitter Card, JSON-LD 구조화 데이터, sitemap.xml, robots.txt, Google Search Console 등록
+- **Google Analytics 4** — 페이지뷰 자동 수집 + 커스텀 이벤트 (병원 선택, 모달 노출, 앱 버튼 클릭 등 5종)
+- **반응형** — 데스크탑(우측 패널) / 모바일(하단 바텀시트) 분기 대응
+- **EC2 + Nginx** 정적 배포, HTTPS(Let's Encrypt)
+
+---
+
 ## 주요 문서
 
 | 문서 | 설명 |
