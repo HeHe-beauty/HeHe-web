@@ -1,48 +1,66 @@
-# .
+# HEHE Web
 
-This template should help get you started developing with Vue 3 in Vite.
+레이저 제모 병원 찾기 앱 **HEHE** 의 다운로드 유도용 지도 웹 랜딩 페이지.
 
-## Recommended IDE Setup
+지도에서 주변 레이저 제모 병원을 탐색하고, HEHE 앱 다운로드로 유도하는 것이 목적.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## 기술 스택
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- **Vue 3** + Vite + TypeScript
+- **Pinia** (상태 관리)
+- **Vue Router 4**
+- **네이버 지도 API** (Maps JavaScript API v3)
+- **axios** (API 통신)
 
-## Type Support for `.vue` Imports in TS
+---
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## 환경변수 설정
 
-## Customize configuration
+프로젝트 루트에 `.env` 파일 생성 후 아래 값을 채운다.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+```
+VITE_NAVER_MAP_CLIENT_ID=your_naver_map_client_id
+VITE_API_BASE_URL=https://api.example.com
+```
 
-## Project Setup
+| 변수 | 설명 |
+|---|---|
+| `VITE_NAVER_MAP_CLIENT_ID` | 네이버 클라우드 플랫폼 Maps 클라이언트 ID |
+| `VITE_API_BASE_URL` | 백엔드 API 베이스 URL |
+
+---
+
+## 개발 실행
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+---
+
+## 배포
 
 ```sh
+# 1. 빌드
 npm run build
+
+# 2. EC2 전송
+scp -i ~/.ssh/your-key.pem -r dist/ user@your-server:/path/to/hehe-web/
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+Nginx가 `dist/` 폴더를 정적 파일로 서빙한다. 배포 후 Nginx reload 불필요.
 
-```sh
-npm run lint
-```
+---
+
+## 주요 문서
+
+| 문서 | 설명 |
+|---|---|
+| `docs/dev_context.md` | 컴포넌트·composable·store 현황 |
+| `docs/web_planning.md` | 전체 기획 |
+| `docs/seo.md` | SEO 적용 현황 |
+| `docs/bug_report.md` | 버그 리포트 |
+| `docs/improvement_report.md` | 개선사항 리포트 |

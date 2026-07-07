@@ -24,13 +24,13 @@ const panelStyle = computed(() => {
   if (isDragging.value) {
     if (isPanelCollapsed.value) {
       const offset = Math.min(0, dragOffset.value)
-      return { transform: `translateY(calc(35vh - ${HANDLE_HEIGHT}px + ${offset}px))`, transition: 'none' }
+      return { transform: `translateY(calc(40vh - ${HANDLE_HEIGHT}px + ${offset}px))`, transition: 'none' }
     }
     const offset = Math.max(0, dragOffset.value)
     if (offset > 0) return { transform: `translateY(${offset}px)`, transition: 'none' }
   }
   if (isPanelCollapsed.value) {
-    return { transform: `translateY(calc(35vh - ${HANDLE_HEIGHT}px))` }
+    return { transform: `translateY(calc(40vh - ${HANDLE_HEIGHT}px))` }
   }
   return {}
 })
@@ -230,7 +230,7 @@ function openBottomSheet(h: HospitalListItem) {
     left: 0;
     right: 0;
     width: 100%;
-    height: 35vh;
+    height: 40vh;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
     padding: 6px 12px 20px;
@@ -258,7 +258,7 @@ function openBottomSheet(h: HospitalListItem) {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    max-height: calc(35vh - 80px);
+    max-height: calc(40vh - 80px);
   }
 
   .slide-enter-from,

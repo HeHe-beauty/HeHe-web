@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 const emit = defineEmits<{ close: [] }>()
 
-const PLAY_STORE_URL = 'https://www.naver.com'
-const APP_STORE_URL = 'https://www.naver.com'
+const activeTooltip = ref<'app' | 'play' | null>(null)
+let tooltipTimer: ReturnType<typeof setTimeout> | null = null
+
+function onStoreBtnClick(e: Event, store: 'app' | 'play') {
+  e.preventDefault()
+  activeTooltip.value = store
+  if (tooltipTimer) clearTimeout(tooltipTimer)
+  tooltipTimer = setTimeout(() => { activeTooltip.value = null }, 2000)
+}
 </script>
 
 <template>
@@ -19,12 +28,22 @@ const APP_STORE_URL = 'https://www.naver.com'
         </p>
 
         <div class="store-buttons">
-          <a :href="APP_STORE_URL" target="_blank" rel="noopener noreferrer" class="store-btn">
-            <img src="/images/app_store_btn.png" alt="App Store에서 다운로드" class="store-img" />
-          </a>
-          <a :href="PLAY_STORE_URL" target="_blank" rel="noopener noreferrer" class="store-btn">
-            <img src="/images/google_play_btn.png" alt="Google Play에서 다운로드" class="store-img" />
-          </a>
+          <div class="store-wrapper">
+            <Transition name="tip">
+              <div v-if="activeTooltip === 'app'" class="tooltip">Coming Soon 🚀</div>
+            </Transition>
+            <a href="#" class="store-btn" @click="onStoreBtnClick($event, 'app')">
+              <img src="/images/app_store_btn.png" alt="App Store에서 다운로드" class="store-img" />
+            </a>
+          </div>
+          <div class="store-wrapper">
+            <Transition name="tip">
+              <div v-if="activeTooltip === 'play'" class="tooltip">Coming Soon 🚀</div>
+            </Transition>
+            <a href="#" class="store-btn" @click="onStoreBtnClick($event, 'play')">
+              <img src="/images/google_play_btn.png" alt="Google Play에서 다운로드" class="store-img" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -106,8 +125,38 @@ const APP_STORE_URL = 'https://www.naver.com'
   gap: 10px;
 }
 
-.store-btn {
+.store-wrapper {
   flex: 1;
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4061fa;
+  color: white;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: #4061fa;
+}
+
+.store-btn {
   display: block;
   border-radius: 10px;
   overflow: hidden;
@@ -124,4 +173,7 @@ const APP_STORE_URL = 'https://www.naver.com'
   height: auto;
   display: block;
 }
+
+.tip-enter-active, .tip-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.tip-enter-from, .tip-leave-to { opacity: 0; transform: translateX(-50%) translateY(-4px); }
 </style>

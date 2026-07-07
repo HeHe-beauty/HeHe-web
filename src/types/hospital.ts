@@ -13,8 +13,8 @@ export interface HospitalListItem {
   hospitalId: number
   name: string
   address: string
-  lat?: number  // 백엔드 응답에 미포함 — 추가 예정
-  lng?: number  // 백엔드 응답에 미포함 — 추가 예정
+  lat: number
+  lng: number
   tags: string[]
   bookmarkCount: number
   isBookmarked: boolean | null

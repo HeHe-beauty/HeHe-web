@@ -5,7 +5,6 @@ import { debounce } from '@/utils/debounce'
 import { hospitalService } from '@/services/hospitalService'
 import { mergeClusterItems, markerSize } from '@/composables/useClusterMerge'
 import type { MergedCluster } from '@/composables/useClusterMerge'
-import { geocodeAddress } from '@/utils/geocode'
 import type { HospitalListItem } from '@/types/hospital'
 
 const store = useMapStore()
@@ -105,6 +104,7 @@ watch(
     mapRef.value.setCenter(new naver.maps.LatLng(lat, lng))
     if (mapRef.value.getZoom() < 17) mapRef.value.setZoom(17)
   },
+  { deep: true },
 )
 
 function requestUserLocation() {
@@ -223,7 +223,7 @@ function clearActivePin() {
   }
 }
 
-// count=1 마커 전체 데이터 사전 조회 — address geocoding으로 실제 병원 좌표 보정 (줌 레벨 무관)
+// count=1 마커 전체 데이터 사전 조회 — 백엔드 응답 lat/lng 사용
 async function prefetchSinglePositions(merged: MergedCluster[]): Promise<void> {
   await Promise.all(
     merged
@@ -242,12 +242,7 @@ async function prefetchSinglePositions(merged: MergedCluster[]): Promise<void> {
             equipId: store.selectedEquipId,
           })
           const h = hospitals[0]
-          if (!h) {
-            singleCache.set(key, null)
-            return
-          }
-          const coords = await geocodeAddress(h.address)
-          singleCache.set(key, coords ? { ...h, lat: coords.lat, lng: coords.lng } : null)
+          singleCache.set(key, h ?? null)
         } catch {
           singleCache.set(key, null)
         }

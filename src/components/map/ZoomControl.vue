@@ -26,7 +26,7 @@ const controlRight = computed(() => {
 
 const controlBottom = computed(() => {
   if (windowWidth.value <= 768) {
-    return isPanelOpen.value && !isPanelCollapsed.value ? 'calc(35vh + 12px)' : '16px'
+    return isPanelOpen.value && !isPanelCollapsed.value ? 'calc(40vh + 12px)' : '16px'
   }
   return '80px'
 })

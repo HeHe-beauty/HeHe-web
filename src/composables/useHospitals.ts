@@ -1,6 +1,5 @@
 import { ref } from 'vue'
 import { hospitalService } from '@/services/hospitalService'
-import { geocodeAddress } from '@/utils/geocode'
 import type { HospitalListItem } from '@/types/hospital'
 
 export function useHospitals() {
@@ -16,13 +15,7 @@ export function useHospitals() {
     isLoading.value = true
     error.value = null
     try {
-      const hospitals = await hospitalService.getByCluster({ lat, lng, precision, equipId })
-      return await Promise.all(
-        hospitals.map(async (h) => {
-          const coords = await geocodeAddress(h.address)
-          return coords ? { ...h, lat: coords.lat, lng: coords.lng } : h
-        }),
-      )
+      return await hospitalService.getByCluster({ lat, lng, precision, equipId })
     } catch {
       error.value = '병원 목록 조회에 실패했습니다.'
       return []
