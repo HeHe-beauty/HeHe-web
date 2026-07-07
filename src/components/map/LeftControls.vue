@@ -3,6 +3,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMapStore } from '@/stores/mapStore'
 import { postHeart } from '@/services/heartService'
+import { trackEvent } from '@/utils/gtag'
 
 defineEmits<{ openFaq: [] }>()
 
@@ -37,6 +38,7 @@ async function onHeartClick() {
   animating.value = true
   setTimeout(() => { animating.value = false }, 350)
 
+  trackEvent('heart_click')
   try {
     const total = await postHeart()
     thankYouMsg.value = `응원 감사해요! 지금까지 ${total}번 응원받았어요`

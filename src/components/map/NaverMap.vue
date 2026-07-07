@@ -6,6 +6,7 @@ import { hospitalService } from '@/services/hospitalService'
 import { mergeClusterItems, markerSize } from '@/composables/useClusterMerge'
 import type { MergedCluster } from '@/composables/useClusterMerge'
 import type { HospitalListItem } from '@/types/hospital'
+import { trackEvent } from '@/utils/gtag'
 
 const store = useMapStore()
 const mapRef = ref<naver.maps.Map | null>(null)
@@ -317,6 +318,7 @@ async function renderClusterMarkers() {
       } else if (cluster.sources.length === 1) {
         store.selectedClusters = cluster.sources
         store.isPanelOpen = true
+        trackEvent('cluster_click', { count: cluster.count })
       } else {
         if (toBackendZoom(clickZoom) !== toBackendZoom(clickZoom + 1)) {
           mapRef.value?.setCenter(new naver.maps.LatLng(cluster.lat, cluster.lng))
@@ -325,6 +327,7 @@ async function renderClusterMarkers() {
           store.selectedClusters = cluster.sources
           store.isPanelOpen = true
         }
+        trackEvent('cluster_click', { count: cluster.count })
       }
     })
 

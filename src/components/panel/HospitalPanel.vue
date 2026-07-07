@@ -5,6 +5,7 @@ import { useMapStore } from '@/stores/mapStore'
 import { useHospitals } from '@/composables/useHospitals'
 import HospitalCard from './HospitalCard.vue'
 import type { HospitalListItem } from '@/types/hospital'
+import { trackEvent } from '@/utils/gtag'
 
 const store = useMapStore()
 const { selectedClusters, isPanelOpen, hospitals, precision, selectedEquipId, isPanelCollapsed } = storeToRefs(store)
@@ -103,6 +104,7 @@ function openBottomSheet(h: HospitalListItem) {
     store.isPanelOpen = false
   }
   store.isBottomSheetOpen = true
+  trackEvent('hospital_select', { hospital_id: h.hospitalId, hospital_name: h.name })
 }
 </script>
 

@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { trackEvent } from '@/utils/gtag'
 
 const emit = defineEmits<{ close: [] }>()
+
+onMounted(() => trackEvent('download_modal_open'))
 
 const activeTooltip = ref<'app' | 'play' | null>(null)
 let tooltipTimer: ReturnType<typeof setTimeout> | null = null
@@ -11,6 +14,7 @@ function onStoreBtnClick(e: Event, store: 'app' | 'play') {
   activeTooltip.value = store
   if (tooltipTimer) clearTimeout(tooltipTimer)
   tooltipTimer = setTimeout(() => { activeTooltip.value = null }, 2000)
+  trackEvent('store_btn_click', { store })
 }
 </script>
 
