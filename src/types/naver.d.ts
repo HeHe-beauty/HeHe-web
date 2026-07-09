@@ -6,6 +6,7 @@ declare namespace naver {
       setCenter(latLng: LatLng): void
       getZoom(): number
       setZoom(zoom: number): void
+      morph(latLng: LatLng, zoom?: number): void
       getBounds(): LatLngBounds
     }
     class Marker {

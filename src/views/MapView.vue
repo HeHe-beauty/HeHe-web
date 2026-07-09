@@ -41,6 +41,11 @@ function onStationSelect(station: Station) {
     <HospitalPanel />
     <HospitalBottomSheet />
     <FaqModal v-if="isFaqOpen" @close="isFaqOpen = false" />
+    <footer class="site-footer">
+      <RouterLink to="/privacy" target="_blank">개인정보처리방침</RouterLink>
+      <span class="divider">·</span>
+      <RouterLink to="/terms" target="_blank">서비스이용약관</RouterLink>
+    </footer>
   </div>
 </template>
 
@@ -61,5 +66,33 @@ function onStationSelect(station: Station) {
   align-items: center;
   gap: 10px;
   z-index: 150;
+}
+
+.site-footer {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 100;
+  font-size: 11px;
+}
+
+.site-footer a {
+  color: #555;
+  text-decoration: none;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  color: #888;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
 }
 </style>

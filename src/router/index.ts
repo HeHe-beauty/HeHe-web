@@ -9,6 +9,24 @@ const router = createRouter({
       name: 'map',
       component: MapView,
     },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('@/views/LegalView.vue'),
+      props: { docType: 'PRIVACY_POLICY' },
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('@/views/LegalView.vue'),
+      props: { docType: 'TERMS_OF_SERVICE' },
+    },
+    {
+      path: '/account-deletion',
+      name: 'account-deletion',
+      component: () => import('@/views/LegalView.vue'),
+      props: { docType: 'ACCOUNT_DELETION_GUIDE' },
+    },
   ],
 })
 

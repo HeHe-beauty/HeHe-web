@@ -102,8 +102,7 @@ watch(
       map: mapRef.value,
       icon: makeSelectedHospitalIcon(name),
     })
-    mapRef.value.setCenter(new naver.maps.LatLng(lat, lng))
-    if (mapRef.value.getZoom() < 17) mapRef.value.setZoom(17)
+    mapRef.value.morph(new naver.maps.LatLng(lat, lng), Math.max(mapRef.value.getZoom(), 17))
   },
   { deep: true },
 )
